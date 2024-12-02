@@ -21,15 +21,13 @@ pub fn solve() -> SolutionPair {
     lhs.sort();
     rhs.sort();
     let mut d = 0;
-    let mut simscore =0;
+    let mut simscore = 0;
     for (ctr, lhv) in lhs.iter().enumerate() {
         let rhv = rhs[ctr];
         d += (rhv - lhv).abs();
         let count = rhs.iter().filter(|x| x == &lhv).count();
-        simscore+=count as i32*lhv;
-    };
-
-
+        simscore += count as i32 * lhv;
+    }
 
     // Your solution here...
     let sol1: u64 = d as u64;
