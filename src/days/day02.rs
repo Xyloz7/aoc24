@@ -4,18 +4,25 @@ use std::{cmp, fs::read_to_string};
 ///////////////////////////////////////////////////////////////////////////////
 
 fn is_report_safe(report: &[i32]) -> bool {
-    let diffs: Vec<i32> = report.windows(2).map(|x| x[1] - x[0]).collect();
-    let minval = *diffs.iter().min().unwrap_or(&0);
-    let maxval = *diffs.iter().max().unwrap_or(&0);
+    let mut min_diff = i32::MAX;
+    let mut max_diff = i32::MIN;
+    let mut all_positive = true;
+    let mut all_negative = true;
 
-    if maxval > 3 || minval.abs() > 3 {
-        return false;
+    for window in report.windows(2) {
+        let diff = window[1] - window[0];
+        min_diff = cmp::min(min_diff, diff);
+        max_diff = cmp::max(max_diff, diff);
+        all_positive &= diff > 0;
+        all_negative &= diff < 0;
+
+        // Early exit if unsafe
+        if max_diff > 3 || min_diff < -3 || (!all_positive && !all_negative) {
+            return false;
+        }
     }
 
-    let all_positive = diffs.iter().all(|&x| x > 0);
-    let all_negative = diffs.iter().all(|&x| x < 0);
-
-    all_positive || all_negative
+    true
 }
 
 pub fn solve() -> SolutionPair {
@@ -27,7 +34,8 @@ pub fn solve() -> SolutionPair {
 
     let lines = content.lines();
 
-    let (mut safe_reports, mut safe_damp) = (0, 0);
+    let mut safe_reports = 0;
+    let mut safe_damp = 0;
 
     for line in lines {
         let report: Vec<i32> = line
@@ -42,15 +50,28 @@ pub fn solve() -> SolutionPair {
         }
 
         // Check all possible combinations with one element removed.
+        let mut found_safe = false;
         for i in 0..report.len() {
-            let mut combination = Vec::with_capacity(report.len() - 1);
-            combination.extend(&report[..i]);
-            combination.extend(&report[i + 1..]);
+            if i > 0 && report[i] == report[i - 1] {
+                // Skip duplicates for performance
+                continue;
+            }
 
-            if is_report_safe(&combination) {
+            // Check safety without creating a new vector
+            let is_safe = is_report_safe(&[
+                &report[..i],    // Elements before the removed one
+                &report[i + 1..] // Elements after the removed one
+            ]
+            .concat());
+            if is_safe {
                 safe_damp += 1;
+                found_safe = true;
                 break;
             }
+        }
+
+        if !found_safe {
+            continue;
         }
     }
 
