@@ -58,11 +58,13 @@ pub fn solve() -> SolutionPair {
             }
 
             // Check safety without creating a new vector
-            let is_safe = is_report_safe(&[
-                &report[..i],    // Elements before the removed one
-                &report[i + 1..] // Elements after the removed one
-            ]
-            .concat());
+            let is_safe = is_report_safe(
+                &[
+                    &report[..i],     // Elements before the removed one
+                    &report[i + 1..], // Elements after the removed one
+                ]
+                .concat(),
+            );
             if is_safe {
                 safe_damp += 1;
                 found_safe = true;
@@ -75,5 +77,8 @@ pub fn solve() -> SolutionPair {
         }
     }
 
-    (Solution::from(safe_reports as u64), Solution::from(safe_damp as u64))
+    (
+        Solution::from(safe_reports as u64),
+        Solution::from(safe_damp as u64),
+    )
 }
