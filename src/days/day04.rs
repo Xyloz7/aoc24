@@ -141,6 +141,12 @@ impl Grid {
         let ss = letters.iter().filter(|x| **x == 'S').count();
         if ms != 2 || ss != 2 {
             return false;
+        };
+        if self.data[northeast as usize] == self.data[southwest as usize] {
+            return false;
+        };
+        if self.data[northwest as usize] == self.data[southeast as usize] {
+            return false;
         }
         return true;
     }
