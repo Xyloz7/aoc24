@@ -25,7 +25,6 @@ pub fn solve() -> SolutionPair {
     for mat in re.find_iter(&content) {
         let matched = mat.as_str();
         if matched.starts_with("mul(") {
-
             let mul_val = multiply_str(matched);
             total += mul_val;
             if active {

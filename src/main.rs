@@ -12,6 +12,7 @@ use std::time::Instant;
 pub type SolutionPair = (Solution, Solution);
 
 fn main() {
+    tracing_subscriber::fmt::init();
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         panic!("Please provide the day(s) to run as a command-line argument.");
