@@ -1,6 +1,6 @@
-use tracing::debug;
 use crate::{Solution, SolutionPair};
 use std::{fs::read_to_string, ops::Add};
+use tracing::debug;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +60,6 @@ impl Grid {
         }
     }
 
-
     fn is_in_bounds(&self, index: i32) -> bool {
         index >= 0 && index < self.data.len() as i32
     }
@@ -108,10 +107,7 @@ impl Grid {
         let m_count = letters.iter().filter(|&&c| c == 'M').count();
         let s_count = letters.iter().filter(|&&c| c == 'S').count();
 
-        m_count == 2
-            && s_count == 2
-            && letters[0] != letters[3]
-            && letters[1] != letters[2]
+        m_count == 2 && s_count == 2 && letters[0] != letters[3] && letters[1] != letters[2]
     }
 }
 
