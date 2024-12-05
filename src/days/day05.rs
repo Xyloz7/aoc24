@@ -74,7 +74,7 @@ impl IndexValueMap {
         let mut output = vec![];
         for i in 0..self.index_to_value.len() {
             output.push(*self.index_to_value.get(&i).unwrap());
-        };
+        }
         output
     }
     fn get_middle_value(&self) -> Option<usize> {
