@@ -59,16 +59,6 @@ impl IndexValueMap {
         );
     }
 
-    // Update the mappings when a move operation changes the logical order
-    fn update_mappings(&mut self) {
-        self.value_to_index.clear();
-        for &idx in &self.order {
-            if let Some(&value) = self.index_to_value.get(&idx) {
-                self.value_to_index.insert(value, idx);
-            }
-        }
-    }
-
     // Get elements in their current logical order
     fn get_elements(&self) -> Vec<usize> {
         let mut output = vec![];
@@ -76,15 +66,6 @@ impl IndexValueMap {
             output.push(*self.index_to_value.get(&i).unwrap());
         }
         output
-    }
-    fn get_middle_value(&self) -> Option<usize> {
-        if self.order.is_empty() {
-            return None; // Handle empty case
-        }
-        let middle_idx = self.order.len() / 2; // Calculate middle index
-        self.order
-            .get(middle_idx) // Get the logical middle index
-            .and_then(|&idx| self.index_to_value.get(&idx).cloned()) // Fetch value
     }
 }
 
@@ -111,10 +92,9 @@ impl RuleMap {
     }
 }
 
-fn check_manual(manual: &str, rulemap: &RuleMap) -> bool {
+fn check_manual(manual: &Vec<usize>, rulemap: &RuleMap) -> bool {
     let mut page_inserts = HashMap::new();
-    for (counter, page) in manual.split(",").enumerate() {
-        let p = page.parse::<usize>().unwrap();
+    for (counter, p) in manual.iter().enumerate() {
         page_inserts.insert(p, counter);
         // debug!("Page {} {}", p, counter);
         if let Some(rules_for_page) = rulemap.rules.get(&p) {
@@ -133,11 +113,9 @@ fn check_manual(manual: &str, rulemap: &RuleMap) -> bool {
     true
 }
 
-fn middle_value(manual: &str) -> usize {
-    let pages: Vec<&str> = manual.split(",").collect();
-    debug!("{} {}", ((pages.len() - 1) / 2), pages.len());
-    let p = pages[((pages.len() - 1) / 2)];
-    p.parse::<usize>().unwrap()
+fn middle_value(manual: &Vec<usize>) -> usize {
+    debug!("{} {}", ((manual.len() - 1) / 2), manual.len());
+    manual[(manual.len() - 1) / 2]
 }
 
 pub fn solve() -> SolutionPair {
@@ -155,23 +133,21 @@ pub fn solve() -> SolutionPair {
     debug!("rulemap {:?}", rulemap);
     let mut total = 0;
     let mut total2 = 0;
-    let mut wrong_manuals = vec![];
-    for (i, manual) in pages.split_ascii_whitespace().enumerate() {
-        if check_manual(manual, &rulemap) {
-            info!("Valid {} {}", i, manual);
-            let mv = middle_value(manual);
 
+    for (i, manual) in pages.split_ascii_whitespace().enumerate() {
+        let vecman: Vec<usize> = manual
+            .split(",")
+            .map(|x| x.parse::<usize>().unwrap())
+            .collect();
+        if check_manual(&vecman, &rulemap) {
+            info!("Valid {} {}", i, manual);
+            let mv = middle_value(&vecman);
             total += mv;
         } else {
             info!("Invalid {} {}", i, manual);
-            wrong_manuals.push(manual);
+            let mv = fix_manual(&vecman, &rulemap);
+            total2 += middle_value(&mv);
         }
-    }
-
-    for wm in wrong_manuals {
-        debug!("Fixing wrong manual {}", wm);
-        let mv = fix_manual(wm, &rulemap);
-        total2 += middle_value(&mv);
     }
 
     let sol1: u64 = total as u64;
@@ -180,13 +156,9 @@ pub fn solve() -> SolutionPair {
     (Solution::from(sol1), Solution::from(sol2))
 }
 
-fn fix_manual(manual: &str, rulemap: &RuleMap) -> String {
-    let pages: Vec<usize> = manual
-        .split(",")
-        .map(|x| x.parse::<usize>().unwrap())
-        .collect();
-    let mut indexer = IndexValueMap::new(pages.clone());
-    for p in pages {
+fn fix_manual(manual: &Vec<usize>, rulemap: &RuleMap) -> Vec<usize> {
+    let mut indexer = IndexValueMap::new(manual.clone());
+    for p in manual {
         let mut counter = indexer.value_to_index.get(&p).unwrap().clone();
         debug!("Page {} {}", p, counter);
         if let Some(rules_for_page) = rulemap.rules.get(&p) {
@@ -209,11 +181,8 @@ fn fix_manual(manual: &str, rulemap: &RuleMap) -> String {
         };
     }
 
-    let mut fixed_str = format!("{:?}", indexer.get_elements())
-        .replace("[", "")
-        .replace("]", "")
-        .replace(" ", "");
-    debug!("Fixed {} -> {:?}", manual, fixed_str);
+    let mut fixed_str = indexer.get_elements();
+    debug!("Fixed {:?} -> {:?}", &manual, fixed_str);
 
     while !check_manual(&fixed_str, rulemap) {
         debug!("Still not fixed wah");
