@@ -222,7 +222,11 @@ mod tests {
 53|13";
         let rulemap = RuleMap::new(&rulesstr);
         debug!("Testing {}", manual);
-        let fixed = fix_manual(manual, &rulemap);
+        let vecman: Vec<usize> = manual
+            .split(",")
+            .map(|x| x.parse::<usize>().unwrap())
+            .collect();
+        let fixed = fix_manual(&vecman, &rulemap);
         debug!("Fixed {} -> {:?}", manual, fixed);
     }
 }
