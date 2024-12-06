@@ -218,15 +218,3 @@ pub fn solve() -> SolutionPair {
 
     (Solution::from(sol1), Solution::from(sol2))
 }
-#[cfg(test)]
-mod tests {
-    // Note this useful idiom: importing names from outer (for mod tests) scope.
-    use super::*;
-
-    #[test]
-    fn test6() {
-        tracing_subscriber::fmt::init();
-        let content = read_to_string("./input/day6_short.txt").unwrap_or_default();
-        let grid = Grid::new(&content);
-    }
-}
