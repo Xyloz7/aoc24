@@ -1,8 +1,8 @@
-use tracing::{debug, error, info};
+use tracing::{debug, info};
 
 use crate::{Solution, SolutionPair};
 use std::{
-    collections::{hash_map::Entry, HashMap, HashSet},
+    collections::{HashMap, HashSet},
     fs::read_to_string,
 };
 
@@ -23,7 +23,6 @@ enum Directions {
     S,
     E,
     W,
-
 }
 
 fn rotate(c: char) -> Option<char> {
@@ -150,7 +149,6 @@ impl Grid {
             Directions::S => c,
             Directions::E => 1,
             Directions::W => -1,
-
         }
     }
     pub fn direction_offset_vec(&self, direction: &Directions) -> (i32, i32) {
@@ -159,7 +157,6 @@ impl Grid {
             Directions::S => (0, 1),
             Directions::E => (1, 0),
             Directions::W => (-1, 0),
-
         }
     }
 
